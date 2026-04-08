@@ -1,0 +1,29 @@
+syshub-backend/
+├── node_modules/           # Dependencias de tu proyecto
+├── src/                    # 💻 Código fuente de tu aplicación
+│   ├── common/             # 🛠️ Utilidades globales
+│   │   ├── decorators/     # Ej: @GetUser()
+│   │   ├── filters/        # Manejo de errores globales
+│   │   └── guards/         # Seguridad: RolesGuard, JwtAuthGuard
+│   ├── config/             # ⚙️ Configuración del entorno (.env)
+│   ├── modules/            # 📦 LOS MÓDULOS DE TU NEGOCIO
+│   │   ├── auth/           # Login, Registro, JWT
+│   │   ├── users/          # Usuarios y Roles
+│   │   │   ├── dto/        # Validaciones (create-user.dto.ts)
+│   │   │   ├── entities/   # 🏗️ AQUÍ VIVE TYPEORM (usuario.entity.ts, rol.entity.ts)
+│   │   │   ├── users.controller.ts
+│   │   │   ├── users.service.ts
+│   │   │   └── users.module.ts
+│   │   ├── courses/        # Cursos y Carreras (curso.entity.ts, carrera.entity.ts)
+│   │   ├── resources/      # Subida de PDFs (recurso.entity.ts)
+│   │   ├── articles/       # Creación del blog (articulo.entity.ts)
+│   │   └── forum/          # Sysreddit (post.entity.ts, comentario.entity.ts)
+│   ├── app.module.ts       # Módulo raíz (AQUÍ inyectas la conexión de TypeORM)
+│   └── main.ts             # Punto de entrada de tu servidor
+├── .env                    # Variables secretas
+├── .env.example            # Plantilla de variables para GitHub
+├── .eslintrc.js            # Reglas de limpieza de código
+├── .gitignore              # Archivos que Git debe ignorar
+├── nest-cli.json           # Configuración del CLI de Nest
+├── package.json            # Lista de dependencias
+└── tsconfig.json           # Configuración de TypeScript
