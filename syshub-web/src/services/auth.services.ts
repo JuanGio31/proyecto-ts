@@ -6,11 +6,10 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials {
-  nombres: string;
-  apellidos: string;
+  nombre_completo: string;
   email: string;
   registro: string;
-  carrera: number;
+  carrera: string;
   fecha_nacimiento: string;
   password: string;
 }

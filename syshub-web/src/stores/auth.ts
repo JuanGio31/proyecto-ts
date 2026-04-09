@@ -39,8 +39,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   async function fetchCurrentUser() {
     try {
-      // Asumiendo que tienes un endpoint /users/me
-      const response = await api.get("/usuarios");
+      const response = await api.get("/auth/me");
       user.value = response.data;
     } catch (error) {
       console.error("Failed to fetch user:", error);

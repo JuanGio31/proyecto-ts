@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Rol } from '../entities/rol.entity';
 import { CreateRolDto } from '../dto/create-rol.dto';
 import { UpdateRolDto } from '../dto/update-rol.dto';
@@ -22,6 +22,16 @@ export class RolesService {
     });
     if (!rolEncontrado) {
       throw new Error('El rol con id: ${id} no existe');
+    }
+    return rolEncontrado;
+  }
+
+  async findByName(name: string): Promise<Rol> {
+    const rolEncontrado = await this.rolRepository.findOne({
+      where: { nombre_rol: ILike(`%${name}%`) },
+    });
+    if (!rolEncontrado) {
+      throw new Error('El rol con nombre:${name}');
     }
     return rolEncontrado;
   }

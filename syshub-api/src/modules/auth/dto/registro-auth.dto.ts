@@ -1,35 +1,38 @@
-import { Type } from 'class-transformer';
 import {
-  IsDate,
   IsEmail,
   IsNumber,
   IsString,
   Length,
   MaxLength,
   MinLength,
+  IsOptional,
 } from 'class-validator';
 
 export class RegistroUsuarioDto {
   @IsString()
   @MinLength(1)
   @MaxLength(100)
-  nombre_completo: string;
+  nombre_completo!: string;
 
   @IsString()
   @Length(9)
-  registro_academico: string;
+  registro!: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 
   @IsNumber()
-  id_carrera: number;
+  @IsOptional()
+  rol?: number;
 
-  @IsDate()
-  @Type(() => Date)
-  fecha_cumpleanios: Date;
+  @IsNumber()
+  carrera!: number;
+
+  @IsString()
+  @IsOptional()
+  fecha_nacimiento?: string;
 }

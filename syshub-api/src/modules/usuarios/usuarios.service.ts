@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { Repository } from 'typeorm';
-import { RegistroUsuarioDto } from '../auth/dto/registro-auth.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class UsuariosService {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async create(nuevo: RegistroUsuarioDto): Promise<Usuario> {
+  async create(nuevo: any): Promise<Usuario> {
     const { password, ...userData } = nuevo;
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
@@ -34,8 +33,11 @@ export class UsuariosService {
     return await this.usuarioRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
+  async findOne(id: number) {
+    return await this.usuarioRepository.findOne({
+      where: { id_usuario: id },
+      relations: ['carrera'],
+    });
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {

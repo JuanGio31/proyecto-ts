@@ -7,11 +7,13 @@ import { UsuariosService } from '../usuarios/usuarios.service';
 import { LoginDto } from './dto/login-auth.dto';
 import { RegistroUsuarioDto } from './dto/registro-auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RolesService } from '../usuarios/roles/roles.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usuariosService: UsuariosService,
+    private rolService: RolesService,
     private jswtAuthService: JwtService,
   ) {}
 
@@ -40,24 +42,38 @@ export class AuthService {
       throw new BadRequestException('El correo electrónico ya está registrado');
     }
 
-    // 2. Crear el usuario (el hashing se hace dentro de usuariosService.create)
-    const nuevoUsuario = this.usuariosService.create(registroDto);
+    if (!registroDto.rol) {
+      const rol = await this.rolService.findByName('estudiante');
+      registroDto.rol = rol.id_rol;
+    }
 
-    // 3. Generar el payload para el token
-    // const payload = {
-    //   sub: nuevoUsuario.id_usuario,
-    //   email: nuevoUsuario.email,
-    // };
-
-    // 4. Retornar el token y los datos básicos del usuario
+    const usuarioData = {
+      nombre_completo: registroDto.nombre_completo,
+      registro_academico: registroDto.registro,
+      email: registroDto.email,
+      password: registroDto.password,
+      id_rol: registroDto.rol,
+      id_carrera: registroDto.carrera,
+      fecha_cumpleanios: registroDto.fecha_nacimiento
+        ? new Date(registroDto.fecha_nacimiento)
+        : new Date(),
+    };
+    const nuevoUsuario = await this.usuariosService.create(usuarioData);
+    const payload = { sub: nuevoUsuario.id_usuario, email: nuevoUsuario.email };
+    const access_token = this.jswtAuthService.sign(payload);
     return {
       message: 'Usuario registrado exitosamente',
-      //access_token: await this.jwtService.signAsync(payload),
+      access_token,
       user: {
-        id: (await nuevoUsuario).id_usuario,
-        nombre: (await nuevoUsuario).nombre_completo,
-        email: (await nuevoUsuario).email,
+        id: nuevoUsuario.id_usuario,
+        nombre: nuevoUsuario.nombre_completo,
+        email: nuevoUsuario.email,
+        rol: nuevoUsuario.rol,
       },
     };
+  }
+
+  async getProfile(userId: number) {
+    return this.usuariosService.findOne(userId);
   }
 }
