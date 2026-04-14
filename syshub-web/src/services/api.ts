@@ -27,10 +27,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response.status === 401) {
-      // Token expirado o invalido
-      localStorage.removeItem("access_token");
-      window.location.href = "/login";
+    const url = error.config?.url || "";
+    const isAuthEndpoint = url.includes("/auth/login") || url.includes("/auth/register");
+    const isMeEndpoint = url.includes("/auth/me");
+
+    if (error.response?.status === 401) {
+      if (!isAuthEndpoint) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user_data");
+        if (!isMeEndpoint) {
+          window.location.href = "/login";
+        }
+      }
     }
     return Promise.reject(error);
   },

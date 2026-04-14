@@ -11,6 +11,7 @@
         </h2>
 
         <form @submit.prevent="handleSumbit" class="flex flex-col gap-4">
+          <p v-if="error" class="text-red-500 text-sm text-center">{{ error }}</p>
           <input
             v-model="email"
             class="p-2 mt-8 rounded-xl border"
@@ -95,14 +96,24 @@ const error = ref("");
 
 async function handleSumbit() {
   error.value = "";
-  const success = await authStore.login({
-    email: email.value,
-    password: password.value,
-  });
-  if (success) {
-    router.push("/");
-  } else {
-    error.value = "Credenciales incorrectas";
+  try {
+    const success = await authStore.login({
+      email: email.value,
+      password: password.value,
+    });
+    if (success) {
+      router.push("/");
+    } else {
+      error.value = "Credenciales incorrectas";
+    }
+  } catch (err: any) {
+    if (err.response?.data?.message) {
+      error.value = err.response.data.message;
+    } else if (err.request) {
+      error.value = "No se pudo conectar con el servidor";
+    } else {
+      error.value = "Ocurrió un error inesperado";
+    }
   }
 }
 </script>

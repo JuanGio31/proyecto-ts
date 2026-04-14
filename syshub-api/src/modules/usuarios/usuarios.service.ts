@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -15,17 +20,25 @@ export class UsuariosService {
     const { password, ...userData } = nuevo;
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    return await this.usuarioRepository.save({
-      ...userData,
+
+    const nuevoUsuario = this.usuarioRepository.create({
+      nombre_completo: userData.nombre_completo,
+      email: userData.email,
+      fecha_nacimiento: userData.fecha_nacimiento,
+      registro_academico: userData.registro_academico,
       password: hashedPassword,
-      id_rol: 5,
-    });
+      rol: userData.rol,
+      carrera: userData.carrera,
+    }) as Usuario;
+
+    return await this.usuarioRepository.save(nuevoUsuario);
   }
 
   async findEmailWithPassword(email: string): Promise<Usuario | null> {
     return await this.usuarioRepository.findOne({
       where: { email },
-      select: ['id_usuario', 'email', 'password', 'nombre_completo'],
+      select: ['id_usuario', 'email', 'password', 'nombre_completo', 'registro_academico'],
+      relations: ['rol'],
     });
   }
 
@@ -52,5 +65,14 @@ export class UsuariosService {
       return result as Usuario;
     }
     return null;
+  }
+
+  async updatePerfil(id: number, data: UpdateUsuarioDto) {
+    const usuarioAc = await this.usuarioRepository.update(id, data);
+
+    if (usuarioAc.affected == 0) {
+      throw new NotFoundException('El usuario con id: ${id} no existe');
+    }
+    return await this.usuarioRepository.findOne({ where: { id_usuario: id } });
   }
 }

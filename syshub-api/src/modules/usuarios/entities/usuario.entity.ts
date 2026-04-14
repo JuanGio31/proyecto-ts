@@ -30,20 +30,14 @@ export class Usuario {
   foto_perfil!: string;
 
   @Column({ type: 'date' })
-  fecha_cumpleanios!: Date;
+  fecha_nacimiento!: Date;
 
   @CreateDateColumn({ type: 'date' })
   fecha_registro!: Date;
 
-  @Column({ name: 'id_rol' })
-  id_rol!: number;
-
   @ManyToOne(() => Rol, (rol) => rol.usuarios)
   @JoinColumn({ name: 'id_rol' })
   rol!: Rol;
-
-  @Column({ name: 'id_carrera' })
-  id_carrera!: number;
 
   @ManyToOne(() => Carrera, (carrera) => carrera.usuarios)
   @JoinColumn({ name: 'id_carrera' })

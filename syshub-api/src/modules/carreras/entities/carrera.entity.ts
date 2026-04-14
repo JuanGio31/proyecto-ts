@@ -19,13 +19,12 @@ export class Carrera {
   @Column({ type: 'varchar', length: 100 })
   nombre_carrera!: string;
 
-  @Column({ name: 'id_division' })
-  id_division!: number;
-
+  //Muchos carreras pertenecen a una division
   @ManyToOne(() => Division, (division) => division.carreras)
   @JoinColumn({ name: 'id_division' })
   division!: Division;
 
+  //Una carrera tiene muchos usuarios
   @OneToMany(() => Usuario, (usuario) => usuario.carrera)
   usuarios!: Usuario[];
 }

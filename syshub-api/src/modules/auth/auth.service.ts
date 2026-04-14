@@ -14,7 +14,7 @@ export class AuthService {
   constructor(
     private usuariosService: UsuariosService,
     private rolService: RolesService,
-    private jswtAuthService: JwtService,
+    private jwtService: JwtService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -27,9 +27,22 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    const payload = { sub: user.id_usuario, email: user.email };
+    console.log('Login - user:', user);
+
+    const payload = {
+      sub: user.id_usuario,
+      userId: user.id_usuario,
+      email: user.email,
+      rol: user.rol.nombre_rol,
+    };
+
+    console.log('Login - payload:', payload);
+
+    const token = await this.jwtService.signAsync(payload);
+    console.log('Login - token generated');
+
     return {
-      access_token: this.jswtAuthService.sign(payload),
+      access_token: token,
     };
   }
 
@@ -42,25 +55,33 @@ export class AuthService {
       throw new BadRequestException('El correo electrónico ya está registrado');
     }
 
-    if (!registroDto.rol) {
+    let rolIdAsignado = registroDto.id_rol;
+    if (!rolIdAsignado) {
       const rol = await this.rolService.findByName('estudiante');
-      registroDto.rol = rol.id_rol;
+      rolIdAsignado = rol.id_rol;
     }
 
     const usuarioData = {
       nombre_completo: registroDto.nombre_completo,
-      registro_academico: registroDto.registro,
+      registro_academico: registroDto.registro_academico,
       email: registroDto.email,
       password: registroDto.password,
-      id_rol: registroDto.rol,
-      id_carrera: registroDto.carrera,
-      fecha_cumpleanios: registroDto.fecha_nacimiento
+      fecha_nacimiento: registroDto.fecha_nacimiento
         ? new Date(registroDto.fecha_nacimiento)
         : new Date(),
+      rol: { id_rol: rolIdAsignado },
+      carrera: { id_carrera: registroDto.id_carrera },
     };
+
     const nuevoUsuario = await this.usuariosService.create(usuarioData);
-    const payload = { sub: nuevoUsuario.id_usuario, email: nuevoUsuario.email };
-    const access_token = this.jswtAuthService.sign(payload);
+    // token de primer acceso
+    const payload = {
+      userId: nuevoUsuario.id_usuario,
+      email: nuevoUsuario.email,
+      rol: nuevoUsuario.rol.nombre_rol,
+    };
+
+    const access_token = this.jwtService.signAsync(payload);
     return {
       message: 'Usuario registrado exitosamente',
       access_token,
@@ -68,7 +89,7 @@ export class AuthService {
         id: nuevoUsuario.id_usuario,
         nombre: nuevoUsuario.nombre_completo,
         email: nuevoUsuario.email,
-        rol: nuevoUsuario.rol,
+        //rol: nuevoUsuario.rol,
       },
     };
   }

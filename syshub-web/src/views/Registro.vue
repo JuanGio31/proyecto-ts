@@ -31,6 +31,7 @@
           Registro en Syshub
         </h2>
         <form @submit.prevent="handleSumbit" class="flex flex-col gap-4">
+          <p v-if="error" class="text-red-500 text-sm text-center">{{ error }}</p>
           <input
             v-model="dataRegistro.nombre_completo"
             class="p-2 rounded-xl border"
@@ -150,19 +151,29 @@ onMounted(async () => {
 
 async function handleSumbit() {
   error.value = "";
-  const success = await authStore.signup({
-    nombre_completo: dataRegistro.value.nombre_completo,
-    email: dataRegistro.value.email,
-    registro: dataRegistro.value.registro,
-    carrera: dataRegistro.value.carrera,
-    fecha_nacimiento: dataRegistro.value.fecha_nacimiento,
-    password: dataRegistro.value.password,
-  });
+  try {
+    const success = await authStore.signup({
+      nombre_completo: dataRegistro.value.nombre_completo,
+      email: dataRegistro.value.email,
+      registro_academico: dataRegistro.value.registro,
+      id_carrera: dataRegistro.value.carrera,
+      fecha_nacimiento: dataRegistro.value.fecha_nacimiento,
+      password: dataRegistro.value.password,
+    });
 
-  if (success) {
-    router.push("/");
-  } else {
-    error.value = "Error en el registro";
+    if (success) {
+      router.push("/");
+    } else {
+      error.value = "Error en el registro";
+    }
+  } catch (err: any) {
+    if (err.response?.data?.message) {
+      error.value = err.response.data.message;
+    } else if (err.request) {
+      error.value = "No se pudo conectar con el servidor";
+    } else {
+      error.value = "Ocurrió un error inesperado";
+    }
   }
 }
 </script>

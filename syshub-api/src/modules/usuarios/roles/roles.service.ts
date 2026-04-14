@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { Rol } from '../entities/rol.entity';
@@ -21,7 +21,7 @@ export class RolesService {
       where: { id_rol: id },
     });
     if (!rolEncontrado) {
-      throw new Error('El rol con id: ${id} no existe');
+      throw new NotFoundException('El rol con id: ${id} no existe');
     }
     return rolEncontrado;
   }
@@ -31,7 +31,7 @@ export class RolesService {
       where: { nombre_rol: ILike(`%${name}%`) },
     });
     if (!rolEncontrado) {
-      throw new Error('El rol con nombre:${name}');
+      throw new NotFoundException('El rol con nombre:${name}');
     }
     return rolEncontrado;
   }
@@ -47,7 +47,7 @@ export class RolesService {
     });
 
     if (!rolActualizado) {
-      throw new Error('El rol con id: ${id} no existe');
+      throw new NotFoundException('El rol con id: ${id} no existe');
     }
     return await this.rolRepository.save(rolActualizado);
   }

@@ -1,5 +1,10 @@
+import { IsNumber, IsString } from 'class-validator';
+
 export class CreateCarreraDto {
-  codigo_carrera: string;
-  id_division: number;
-  nombre_carrera: string;
+  @IsString()
+  codigo_carrera!: string;
+  @IsString()
+  nombre_carrera!: string;
+  @IsNumber()
+  id_division!: number;
 }

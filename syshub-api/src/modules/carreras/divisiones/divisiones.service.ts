@@ -1,26 +1,34 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDivisioneDto } from './dto/create-divisione.dto';
-import { UpdateDivisioneDto } from './dto/update-divisione.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Division } from './entities/divisione.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DivisionesService {
-  create(createDivisioneDto: CreateDivisioneDto) {
-    return 'This action adds a new divisione';
+  constructor(
+    @InjectRepository(Division)
+    private readonly divisionRepository: Repository<Division>,
+  ) {}
+
+  async create(createDivisioneDto: CreateDivisioneDto): Promise<Division> {
+    const division = this.divisionRepository.create(createDivisioneDto);
+    return await this.divisionRepository.save(division);
   }
 
-  findAll() {
-    return `This action returns all divisiones`;
+  async findAll(): Promise<Division[]> {
+    return await this.divisionRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} divisione`;
-  }
+  async findOne(id: number): Promise<Division> {
+    const divisionEncontrada = await this.divisionRepository.findOne({
+      where: { id },
+    });
 
-  update(id: number, updateDivisioneDto: UpdateDivisioneDto) {
-    return `This action updates a #${id} divisione`;
-  }
+    if (!divisionEncontrada) {
+      throw new NotFoundException('La division con id: ${id} no existe');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} divisione`;
+    return divisionEncontrada;
   }
 }

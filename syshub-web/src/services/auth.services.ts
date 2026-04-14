@@ -8,8 +8,8 @@ export interface LoginCredentials {
 export interface RegisterCredentials {
   nombre_completo: string;
   email: string;
-  registro: string;
-  carrera: string;
+  registro_academico: string;
+  id_carrera: string;
   fecha_nacimiento: string;
   password: string;
 }

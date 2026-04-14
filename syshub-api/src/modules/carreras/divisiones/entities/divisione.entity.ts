@@ -9,6 +9,7 @@ export class Division {
   @Column({ type: 'varchar', length: 70, unique: true })
   nombre_division!: string;
 
+  //Una division tiene muchas carreras
   @OneToMany(() => Carrera, (carrera) => carrera.division)
   carreras!: Carrera[];
 }

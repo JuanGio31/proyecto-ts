@@ -6,6 +6,7 @@ import {
   MaxLength,
   MinLength,
   IsOptional,
+  IsDateString,
 } from 'class-validator';
 
 export class RegistroUsuarioDto {
@@ -16,7 +17,7 @@ export class RegistroUsuarioDto {
 
   @IsString()
   @Length(9)
-  registro!: string;
+  registro_academico!: string;
 
   @IsEmail()
   email!: string;
@@ -27,12 +28,12 @@ export class RegistroUsuarioDto {
 
   @IsNumber()
   @IsOptional()
-  rol?: number;
+  id_rol?: number;
 
   @IsNumber()
-  carrera!: number;
+  id_carrera!: number;
 
-  @IsString()
+  @IsDateString()
   @IsOptional()
   fecha_nacimiento?: string;
 }

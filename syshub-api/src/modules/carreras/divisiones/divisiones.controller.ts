@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { DivisionesService } from './divisiones.service';
 import { CreateDivisioneDto } from './dto/create-divisione.dto';
-import { UpdateDivisioneDto } from './dto/update-divisione.dto';
 
 @Controller('divisiones')
 export class DivisionesController {
@@ -20,13 +19,5 @@ export class DivisionesController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.divisionesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateDivisioneDto: UpdateDivisioneDto,
-  ) {
-    return this.divisionesService.update(+id, updateDivisioneDto);
   }
 }

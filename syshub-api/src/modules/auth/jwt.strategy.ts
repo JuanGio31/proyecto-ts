@@ -20,8 +20,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: any) {
-    // Aquí puedes agregar más lógica, como buscar al usuario en BD
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    return { userId: payload.sub, email: payload.email };
+    return {
+      userId: payload.userId || payload.sub,
+      email: payload.email,
+      rol: { nombre_rol: payload.rol },
+    };
   }
 }

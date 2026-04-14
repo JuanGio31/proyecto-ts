@@ -4,15 +4,27 @@ import Login from "../views/Login.vue";
 import Registro from "../views/Registro.vue";
 import Home from "../views/Home.vue";
 import { useAuthStore } from "../stores/auth";
+import DefaultLayout from "../layout/DefaultLayout.vue";
+import MiPerfil from "../views/MiPerfil.vue";
 
 const routes = [
   {
     path: "/",
-    name: "home",
-    component: Home,
-    meta: {
-      requiresAuth: true,
-    },
+    component: DefaultLayout,
+    children: [
+      {
+        path: "",
+        name: "home",
+        component: Home,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/me",
+        name: "mi-perfil",
+        component: MiPerfil,
+        meta: { requiresAuth: false },
+      },
+    ],
   },
   {
     path: "/login",

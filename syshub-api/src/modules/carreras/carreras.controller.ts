@@ -8,22 +8,25 @@ export class CarrerasController {
   constructor(private readonly carrerasService: CarrerasService) {}
 
   @Post()
-  create(@Body() createCarreraDto: CreateCarreraDto) {
+  async create(@Body() createCarreraDto: CreateCarreraDto) {
     return this.carrerasService.create(createCarreraDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.carrerasService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.carrerasService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCarreraDto: UpdateCarreraDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCarreraDto: UpdateCarreraDto,
+  ) {
     return this.carrerasService.update(+id, updateCarreraDto);
   }
 }

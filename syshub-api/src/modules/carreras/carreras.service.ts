@@ -29,7 +29,7 @@ export class CarrerasService {
     });
 
     if (!carreraEncontrada) {
-      throw new Error('La carrera con id: ${id} no existe');
+      throw new NotFoundException('La carrera con id: ${id} no existe');
     }
 
     return carreraEncontrada;

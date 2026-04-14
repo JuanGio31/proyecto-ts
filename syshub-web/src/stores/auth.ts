@@ -10,6 +10,7 @@ import api from "../services/api";
 export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(localStorage.getItem("access_token"));
   const user = ref<any>(null);
+  const loading = ref(false);
 
   const isAuthenticated = computed(() => !!token.value);
 
@@ -17,10 +18,16 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const response = await authService.login(credentials);
       token.value = response.access_token;
+      localStorage.setItem("access_token", token.value);
       await fetchCurrentUser();
+      if (!user.value) {
+        throw new Error("No se pudo obtener datos del usuario");
+      }
       return true;
-    } catch (error) {
-      console.error("Login failed:", error);
+    } catch (error: any) {
+      console.error("Login fallido:", error);
+      token.value = null;
+      localStorage.removeItem("access_token");
       return false;
     }
   }
@@ -29,20 +36,30 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const response = await authService.register(credentials);
       token.value = response.access_token;
+      localStorage.setItem("access_token", token.value);
       await fetchCurrentUser();
       return true;
     } catch (error) {
-      console.error("Signup failed:", error);
+      console.error("Registro Fallido:", error);
       return false;
     }
   }
 
   async function fetchCurrentUser() {
+    if (!token.value) return;
+    loading.value = true;
     try {
       const response = await api.get("/auth/me");
       user.value = response.data;
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
+      localStorage.setItem("user_data", JSON.stringify(user.value));
+    } catch (error: any) {
+      console.error("Falló la busqueda del usuario:", error);
+      if (error.response?.status === 401) {
+        token.value = null;
+        localStorage.removeItem("access_token");
+      }
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -50,15 +67,33 @@ export const useAuthStore = defineStore("auth", () => {
     authService.logout();
     token.value = null;
     user.value = null;
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user_data");
   }
+
+  function updateUser(nuevosDatos: any) {
+    user.value = { ...user.value, ...nuevosDatos };
+    localStorage.setItem("user_data", JSON.stringify(user.value));
+  }
+
+  async function initAuth() {
+    if (token.value && !user.value) {
+      await fetchCurrentUser();
+    }
+  }
+
+  initAuth();
 
   return {
     token,
     user,
+    loading,
     isAuthenticated,
     login,
     signup,
     logout,
     fetchCurrentUser,
+    updateUser,
+    initAuth,
   };
 });
