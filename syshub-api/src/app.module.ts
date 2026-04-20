@@ -7,6 +7,7 @@ import { RolesModule } from './modules/usuarios/roles/roles.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -32,9 +33,8 @@ import { join } from 'path';
     }),
     UsuariosModule,
     CarrerasModule,
-    RolesModule,
     AuthModule,
-
+    PostsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // La ruta en el navegador será /uploads/perfiles/foto.jpg

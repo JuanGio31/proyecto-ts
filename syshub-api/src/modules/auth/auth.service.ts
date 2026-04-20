@@ -27,19 +27,13 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    console.log('Login - user:', user);
-
     const payload = {
       sub: user.id_usuario,
-      userId: user.id_usuario,
       email: user.email,
       rol: user.rol.nombre_rol,
     };
 
-    console.log('Login - payload:', payload);
-
     const token = await this.jwtService.signAsync(payload);
-    console.log('Login - token generated');
 
     return {
       access_token: token,
@@ -74,14 +68,13 @@ export class AuthService {
     };
 
     const nuevoUsuario = await this.usuariosService.create(usuarioData);
-    // token de primer acceso
     const payload = {
-      userId: nuevoUsuario.id_usuario,
+      sub: nuevoUsuario.id_usuario,
       email: nuevoUsuario.email,
       rol: nuevoUsuario.rol.nombre_rol,
     };
 
-    const access_token = this.jwtService.signAsync(payload);
+    const access_token = await this.jwtService.signAsync(payload);
     return {
       message: 'Usuario registrado exitosamente',
       access_token,
@@ -89,7 +82,6 @@ export class AuthService {
         id: nuevoUsuario.id_usuario,
         nombre: nuevoUsuario.nombre_completo,
         email: nuevoUsuario.email,
-        //rol: nuevoUsuario.rol,
       },
     };
   }

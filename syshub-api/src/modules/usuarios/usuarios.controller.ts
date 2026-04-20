@@ -10,8 +10,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { GetUser } from '../auth/decorators/get-user.decorator';
+import { JwtAuthGuard } from '@app/common/guards/jwt-auth.guard';
+import { GetUser } from '@app/common/decorators/get-user.decorator';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '@app/common/utils/multer.config';
