@@ -25,6 +25,24 @@ export class PostsController {
     return this.postsService.create(createPostDto, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/comentarios')
+  createComentario(
+    @Param('id') postId: number,
+    @GetUser('userId') userId: number,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    return this.postsService.create(
+      { ...createPostDto, post_respuesta_id: postId },
+      userId,
+    );
+  }
+
+  @Get(':id/comentarios')
+  getComentarios(@Param('id') postId: number) {
+    return this.postsService.getComentarios(postId);
+  }
+
   @Get()
   findAll() {
     return this.postsService.findAll();

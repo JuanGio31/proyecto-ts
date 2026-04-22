@@ -74,30 +74,113 @@
         <ArrowBigDown />
         <span class="text-sm">{{ dislikes }}</span>
       </button>
-      <button class="hover:text-amber-400 flex items-center gap-1">
+      <button
+        @click="toggleComentarios"
+        class="hover:text-amber-400 flex items-center gap-1"
+      >
         <Message />
-        <span class="text-sm">0</span>
+        <span class="text-sm">{{ comentariosCount }}</span>
       </button>
+    </div>
+
+    <div v-if="mostrarComentarios" class="mt-3 pt-3 border-t border-gray-100">
+      <div v-if="comentarios.length > 0" class="space-y-3 mb-3">
+        <div
+          v-for="comentario in comentarios"
+          :key="comentario.id_post"
+          class="pl-3 border-l-2 border-gray-200"
+        >
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-semibold text-sm text-gray-800">{{
+              comentario.autor?.nombre_completo
+            }}</span>
+            <span class="text-gray-400 text-xs">{{
+              formatFecha(comentario.fecha_publicacion)
+            }}</span>
+          </div>
+          <p class="text-sm text-gray-700">{{ comentario.contenido }}</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <input
+          v-model="nuevoComentario"
+          type="text"
+          placeholder="Escribe un comentario..."
+          class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+          @keyup.enter="enviarComentario"
+        />
+        <button
+          @click="enviarComentario"
+          :disabled="!nuevoComentario.trim()"
+          class="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600"
+        >
+          Enviar
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import type { Post } from "../services/posts.services";
 import { ArrowBigDown, ArrowBigUp, Message } from "@boxicons/vue";
 import { usePostsStore } from "../stores/posts";
+import { postsService } from "../services/posts.services";
 
 const props = defineProps<{
   post: Post;
 }>();
 
+const emit = defineEmits(["comentario-creado"]);
+
 const postsStore = usePostsStore();
+
+const mostrarComentarios = ref(false);
+const comentarios = ref<Post[]>([]);
+const nuevoComentario = ref("");
 
 const reactions = computed(() => postsStore.getReactions(props.post.id_post));
 const likes = computed(() => reactions.value.likes);
 const dislikes = computed(() => reactions.value.dislikes);
 const myReaction = computed(() => reactions.value.myReaction);
+const comentariosCount = computed(() => props.post?.comentarios?.length || 0);
+
+const toggleComentarios = async () => {
+  if (!mostrarComentarios.value) {
+    if (props.post.comentarios) {
+      comentarios.value = props.post.comentarios;
+    }
+  }
+  mostrarComentarios.value = !mostrarComentarios.value;
+};
+
+const enviarComentario = async () => {
+  if (!nuevoComentario.value.trim()) return;
+
+  try {
+    const nuevo = await postsService.createComment(
+      props.post.id_post,
+      nuevoComentario.value,
+    );
+    comentarios.value.push(nuevo);
+    nuevoComentario.value = "";
+    emit("comentario-creado");
+  } catch (error) {
+    console.error("Error al crear comentario:", error);
+  }
+};
+
+const formatFecha = (fecha: string) => {
+  const d = new Date(fecha);
+  return d.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const handleLike = () => {
   postsStore.toggleLike(props.post.id_post);

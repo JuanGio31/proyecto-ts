@@ -29,6 +29,7 @@ export class UsuariosService {
       password: hashedPassword,
       rol: userData.rol,
       carrera: userData.carrera,
+      username: `user_${crypto.randomUUID()}`,
     }) as Usuario;
 
     return await this.usuarioRepository.save(nuevoUsuario);
@@ -37,7 +38,13 @@ export class UsuariosService {
   async findEmailWithPassword(email: string): Promise<Usuario | null> {
     return await this.usuarioRepository.findOne({
       where: { email },
-      select: ['id_usuario', 'email', 'password', 'nombre_completo', 'registro_academico'],
+      select: [
+        'id_usuario',
+        'email',
+        'password',
+        'nombre_completo',
+        'registro_academico',
+      ],
       relations: ['rol'],
     });
   }

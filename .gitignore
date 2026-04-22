@@ -27,3 +27,6 @@ coverage/
 # Temp files
 .temp/
 .tmp/
+
+# Uploads
+uploads/

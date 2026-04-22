@@ -19,15 +19,20 @@ export class Post {
   @Column({ type: 'text' })
   contenido!: string;
 
-  @CreateDateColumn({ type: 'date' })
+  @CreateDateColumn({ type: 'timestamp' })
   fecha_publicacion!: Date;
 
-  // muchos posts pertenecen a un usuario
+  @ManyToOne(() => Post, (post) => post.comentarios, { nullable: true })
+  @JoinColumn({ name: 'post_respuesta_id' })
+  postRespuesta?: Post;
+
+  @OneToMany(() => Post, (post) => post.postRespuesta)
+  comentarios!: Post[];
+
   @ManyToOne(() => Usuario, (usuario) => usuario.posts)
   @JoinColumn({ name: 'id_autor' })
   autor!: Usuario;
 
-  // un post puede tener muchas imagenes
   @OneToMany(() => PostImagen, (imagen) => imagen.post, { cascade: true })
   imagenes!: PostImagen[];
 

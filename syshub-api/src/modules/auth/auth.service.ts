@@ -30,6 +30,7 @@ export class AuthService {
     const payload = {
       sub: user.id_usuario,
       email: user.email,
+      username: user.username,
       rol: user.rol.nombre_rol,
     };
 
@@ -71,6 +72,7 @@ export class AuthService {
     const payload = {
       sub: nuevoUsuario.id_usuario,
       email: nuevoUsuario.email,
+      username: nuevoUsuario.username,
       rol: nuevoUsuario.rol.nombre_rol,
     };
 

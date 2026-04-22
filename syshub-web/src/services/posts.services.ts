@@ -24,6 +24,7 @@ export interface Post {
     id_imagen: number;
     nombre_archivo: string;
   }[];
+  comentarios?: Post[];
 }
 
 export const postsService = {
@@ -49,8 +50,39 @@ export const postsService = {
     return response.data;
   },
 
+  async createComment(
+    postId: number,
+    contenido: string,
+    archivos: File[] = [],
+  ): Promise<Post> {
+    let nombresArchivos: string[] = [];
+
+    if (archivos.length > 0) {
+      const formData = new FormData();
+      archivos.forEach((file) => {
+        formData.append("imagenes", file);
+      });
+
+      const uploadResponse = await api.post("/posts/imagenes/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      nombresArchivos = uploadResponse.data.nombres_archivos || [];
+    }
+
+    const response = await api.post(`/posts/${postId}/comentarios`, {
+      contenido,
+      nombres_imagenes: nombresArchivos,
+    });
+    return response.data;
+  },
+
   async getPosts(): Promise<Post[]> {
     const response = await api.get("/posts");
+    return response.data;
+  },
+
+  async getComentarios(postId: number): Promise<Post[]> {
+    const response = await api.get(`/posts/${postId}/comentarios`);
     return response.data;
   },
 

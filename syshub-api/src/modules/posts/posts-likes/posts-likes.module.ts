@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { PostsLikesService } from './posts-likes.service';
-import { PostsLikesController } from './posts-likes.controller';
+import { PostsLikesService } from '@app/modules/posts/posts-likes/posts-likes.service';
+import { PostsLikesController } from '@app/modules/posts/posts-likes/posts-likes.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsLike } from '@app/modules/posts/entities/posts-like.entity';
 

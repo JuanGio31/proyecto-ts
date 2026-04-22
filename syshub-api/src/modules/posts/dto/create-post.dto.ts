@@ -1,4 +1,10 @@
-import { IsArray, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
@@ -8,4 +14,8 @@ export class CreatePostDto {
   @IsArray()
   @IsOptional()
   nombres_imagenes?: string[];
+
+  @IsInt()
+  @IsOptional()
+  post_respuesta_id?: number;
 }
