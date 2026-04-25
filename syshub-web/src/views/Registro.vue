@@ -31,7 +31,9 @@
           Registro en Syshub
         </h2>
         <form @submit.prevent="handleSumbit" class="flex flex-col gap-4">
-          <p v-if="error" class="text-red-500 text-sm text-center">{{ error }}</p>
+          <p v-if="error" class="text-red-500 text-sm text-center">
+            {{ error }}
+          </p>
           <input
             v-model="dataRegistro.nombre_completo"
             class="p-2 rounded-xl border"
@@ -59,8 +61,12 @@
             class="p-2 rounded-xl border w-full"
             required
           >
-          <option value="" disabled>Seleccione una carrera</option>
-            <option v-for="carrera in carreras" :key="carrera.id_carrera" :value="carrera.id_carrera">
+            <option value="" disabled>Seleccione una carrera</option>
+            <option
+              v-for="carrera in carreras"
+              :key="carrera.id_carrera"
+              :value="carrera.id_carrera"
+            >
               {{ carrera.nombre_carrera }}
             </option>
           </select>
@@ -133,7 +139,7 @@ const router = useRouter();
 const error = ref("");
 const carreras = ref<Carrera[]>([]);
 const dataRegistro = ref({
-  nombre_completo:"",
+  nombre_completo: "",
   email: "",
   registro: "",
   carrera: "",

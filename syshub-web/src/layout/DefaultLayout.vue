@@ -1,13 +1,12 @@
-<!-- layouts/DefaultLayout.vue -->
-<script setup lang="ts">
-import Sidebar from "../components/Sidebar.vue";
-</script>
-
 <template>
-  <div class="flex min-h-screen bg-gray-100 p-4 gap-8 justify-center">
+  <div class="min-h-screen bg-gray-100">
     <Sidebar />
-    <main class="w-lvh">
+    <main class="max-w-11/12 mx-auto pt-20 lg:pt-4 lg:pl-72 px-4 lg:px-0">
       <RouterView />
     </main>
   </div>
 </template>
+
+<script setup lang="ts">
+import Sidebar from "../components/Sidebar.vue";
+</script>

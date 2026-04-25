@@ -11,7 +11,9 @@
         </h2>
 
         <form @submit.prevent="handleSumbit" class="flex flex-col gap-4">
-          <p v-if="error" class="text-red-500 text-sm text-center">{{ error }}</p>
+          <p v-if="error" class="text-red-500 text-sm text-center">
+            {{ error }}
+          </p>
           <input
             v-model="email"
             class="p-2 mt-8 rounded-xl border"

@@ -6,8 +6,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Division } from '../divisiones/entities/divisione.entity';
+import { Division } from '@app/modules/carreras/divisiones/entities/divisione.entity';
 import { Usuario } from '@app/modules/usuarios/entities/usuario.entity';
+import { Curso } from '@app/modules/carreras/cursos/entities/curso.entity';
 @Entity('carreras')
 export class Carrera {
   @PrimaryGeneratedColumn()
@@ -27,4 +28,8 @@ export class Carrera {
   //Una carrera tiene muchos usuarios
   @OneToMany(() => Usuario, (usuario) => usuario.carrera)
   usuarios!: Usuario[];
+
+  //Una carrera tiene muchos cursos
+  @OneToMany(() => Curso, (curso) => curso.carrera)
+  cursos!: Curso[];
 }

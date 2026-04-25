@@ -21,7 +21,7 @@ export class RolesService {
       where: { id_rol: id },
     });
     if (!rolEncontrado) {
-      throw new NotFoundException('El rol con id: ${id} no existe');
+      throw new NotFoundException(`El rol con id: ${id} no existe`);
     }
     return rolEncontrado;
   }
@@ -31,7 +31,7 @@ export class RolesService {
       where: { nombre_rol: ILike(`%${name}%`) },
     });
     if (!rolEncontrado) {
-      throw new NotFoundException('El rol con nombre:${name}');
+      throw new NotFoundException(`El rol con nombre: ${name} no existe`);
     }
     return rolEncontrado;
   }
@@ -47,7 +47,7 @@ export class RolesService {
     });
 
     if (!rolActualizado) {
-      throw new NotFoundException('El rol con id: ${id} no existe');
+      throw new NotFoundException(`El rol con id: ${id} no existe`);
     }
     return await this.rolRepository.save(rolActualizado);
   }

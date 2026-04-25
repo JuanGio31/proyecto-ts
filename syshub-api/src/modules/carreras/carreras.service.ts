@@ -29,7 +29,7 @@ export class CarrerasService {
     });
 
     if (!carreraEncontrada) {
-      throw new NotFoundException('La carrera con id: ${id} no existe');
+      throw new NotFoundException(`La carrera con id: ${id} no existe`);
     }
 
     return carreraEncontrada;
@@ -46,5 +46,27 @@ export class CarrerasService {
     }
 
     return await this.carreraRepository.save(carreraActualizada);
+  }
+
+  async remove(id: number) {
+    const carreraEncontrada = await this.carreraRepository.findOne({
+      where: { id_carrera: id },
+    });
+    if (!carreraEncontrada) {
+      throw new NotFoundException(`La carrera con id: ${id} no existe`);
+    }
+    return await this.carreraRepository.remove(carreraEncontrada);
+  }
+
+  async findCarreraWithCursos(id: number) {
+    const carreraEncontrada = await this.carreraRepository.findOne({
+      where: { id_carrera: id },
+      relations: { cursos: true },
+    });
+
+    if (!carreraEncontrada) {
+      throw new NotFoundException(`La carrera con id: ${id} no existe`);
+    }
+    return carreraEncontrada;
   }
 }

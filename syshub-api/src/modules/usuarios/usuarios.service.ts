@@ -53,10 +53,16 @@ export class UsuariosService {
     return await this.usuarioRepository.find();
   }
 
+  async findAllWithRelations() {
+    return await this.usuarioRepository.find({
+      relations: ['carrera', 'rol'],
+    });
+  }
+
   async findOne(id: number) {
     return await this.usuarioRepository.findOne({
       where: { id_usuario: id },
-      relations: ['carrera'],
+      relations: ['carrera', 'rol'],
     });
   }
 
@@ -78,8 +84,19 @@ export class UsuariosService {
     const usuarioAc = await this.usuarioRepository.update(id, data);
 
     if (usuarioAc.affected == 0) {
-      throw new NotFoundException('El usuario con id: ${id} no existe');
+      throw new NotFoundException(`El usuario con id: ${id} no existe`);
     }
     return await this.usuarioRepository.findOne({ where: { id_usuario: id } });
+  }
+
+  async remove(id: number) {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id_usuario: id },
+    });
+    if (!usuario) {
+      throw new NotFoundException(`El usuario con id: ${id} no existe`);
+    }
+    await this.usuarioRepository.remove(usuario);
+    return { message: 'Usuario eliminado correctamente' };
   }
 }

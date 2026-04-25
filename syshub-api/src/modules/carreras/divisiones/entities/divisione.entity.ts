@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Carrera } from '../../entities/carrera.entity';
+import { Carrera } from '@app/modules/carreras/entities/carrera.entity';
 
 @Entity('divisiones')
 export class Division {

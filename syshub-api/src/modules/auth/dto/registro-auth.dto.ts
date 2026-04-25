@@ -17,7 +17,7 @@ export class RegistroUsuarioDto {
 
   @IsString()
   @Length(9)
-  registro_academico!: string;
+  registro_academico?: string;
 
   @IsEmail()
   email!: string;

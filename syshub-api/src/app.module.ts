@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsuariosModule } from './modules/usuarios/usuarios.module';
-import { CarrerasModule } from './modules/carreras/carreras.module';
-import { RolesModule } from './modules/usuarios/roles/roles.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { UsuariosModule } from '@app/modules/usuarios/usuarios.module';
+import { CarrerasModule } from '@app/modules/carreras/carreras.module';
+import { AuthModule } from '@app/modules/auth/auth.module';
+import { PostsModule } from '@app/modules/posts/posts.module';
+import { RecursosModule } from '@app/modules/recursos/recursos.module';
+import { EtiquetasModule } from '@app/modules/etiquetas/etiquetas.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -35,10 +36,12 @@ import { PostsModule } from './modules/posts/posts.module';
     CarrerasModule,
     AuthModule,
     PostsModule,
+    RecursosModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // La ruta en el navegador será /uploads/perfiles/foto.jpg
     }),
+    EtiquetasModule,
   ],
 })
 export class AppModule {}

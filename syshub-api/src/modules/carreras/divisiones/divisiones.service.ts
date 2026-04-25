@@ -26,7 +26,7 @@ export class DivisionesService {
     });
 
     if (!divisionEncontrada) {
-      throw new NotFoundException('La division con id: ${id} no existe');
+      throw new NotFoundException(`La division con id: ${id} no existe`);
     }
 
     return divisionEncontrada;
