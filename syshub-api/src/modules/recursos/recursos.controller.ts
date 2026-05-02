@@ -5,6 +5,8 @@ import {
   Body,
   Param,
   Delete,
+  Patch,
+  Query,
   UseInterceptors,
   UploadedFile,
   UseGuards,
@@ -21,6 +23,12 @@ export class RecursosController {
   constructor(private readonly recursosService: RecursosService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMyRecursos(@GetUser('userId') userId: number) {
+    return this.recursosService.findByUser(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('archivo', recursosMulterOptions))
   uploadArchivo(@UploadedFile() file: Express.Multer.File) {
@@ -28,6 +36,12 @@ export class RecursosController {
       return { nombre_archivo: '' };
     }
     return { nombre_archivo: file.filename };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('curso/:id')
+  async getRecursosByCursoForStudents(@Param('id') id: string) {
+    return this.recursosService.findByCursoForStudents(+id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -40,8 +54,13 @@ export class RecursosController {
   }
 
   @Get()
-  async findAll() {
-    return this.recursosService.findAll();
+  async findAll(
+    @Query('busqueda') busqueda?: string,
+    @Query('etiqueta') etiqueta?: string,
+    @Query('herramienta') herramienta?: string,
+    @Query('es_destacado') es_destacado?: string,
+  ) {
+    return this.recursosService.findAll({ busqueda, etiqueta, herramienta, es_destacado });
   }
 
   @Get(':id')
@@ -49,13 +68,11 @@ export class RecursosController {
     return this.recursosService.findOne(+id);
   }
 
-  // @Patch(':id')
-  // async update(
-  //   @Param('id') id: string,
-  //   @Body() updateRecursoDto: UpdateRecursoDto,
-  // ) {
-  //   return this.recursosService.update(+id, updateRecursoDto);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/destacado')
+  async toggleDestacado(@Param('id') id: string) {
+    return this.recursosService.toggleDestacado(+id);
+  }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {

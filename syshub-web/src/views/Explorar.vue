@@ -1,141 +1,142 @@
 <template>
-  <div
-    class="max-w-3xl mx-auto min-h-screen border-x border-gray-100 rounded-xl bg-white"
-  >
-    <!-- Barra de Búsqueda Sticky -->
-    <div
-      class="sticky top-0 bg-white/80 backdrop-blur-md z-10 p-4 border-b border-gray-100"
-    >
-      <div class="relative group">
-        <div
-          class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500"
-        >
-          <svg
-            xmlns="http://w3.org"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Buscar herramientas, etiquetas o proyectos..."
-          class="w-full bg-gray-100 border-none rounded-full py-2.5 pl-12 pr-4 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm"
-        />
-      </div>
-
-      <!-- Filtros Rápidos (Pestañas tipo Twitter) -->
-      <div class="flex mt-4 overflow-x-auto no-scrollbar gap-2">
-        <button
-          v-for="filtro in filtros"
-          :key="filtro.id"
-          @click="filtroActivo = filtro.id"
-          :class="[
-            'px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap border',
-            filtroActivo === filtro.id
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-          ]"
-        >
-          {{ filtro.label }}
-        </button>
-      </div>
+  <div class="max-w-4xl mx-auto min-h-screen">
+    <!-- Solo input de búsqueda -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Buscar..."
+        class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+      />
     </div>
 
-    <!-- Feed de Resultados -->
-    <div class="divide-y divide-gray-100 rounded-2xl">
-      <div
-        v-for="item in resultadosFiltrados"
-        :key="item.id"
-        class="p-4 hover:bg-gray-50 cursor-pointer transition-colors group"
-      >
-        <div class="flex gap-4">
-          <!-- Icono según tipo -->
-          <div
-            class="shrink-0 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl"
+    <!-- Tabs -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div class="flex border-b border-gray-200">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          @click="activeTab = tab.id"
+          class="flex-1 px-4 py-3 font-semibold text-sm transition-colors relative"
+          :class="activeTab === tab.id ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'"
+        >
+          {{ tab.label }}
+          <span v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"></span>
+          <span
+            v-if="getCount(tab.id) > 0"
+            class="ml-1 text-xs text-gray-400"
           >
-            {{ item.id_curso ? "📚" : "💡" }}
-          </div>
+            ({{ getCount(tab.id) }})
+          </span>
+        </button>
+      </div>
 
-          <div class="flex-1">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-1">
-                <span class="font-bold text-gray-900 hover:underline">{{
-                  item.usuario.nombre
-                }}</span>
-                <span class="text-gray-500 text-sm"
-                  >· {{ formatFecha(item.fecha) }}</span
-                >
-                <!-- Badge de Destacado -->
-                <span
-                  v-if="item.es_destacado"
-                  class="ml-2 bg-amber-100 text-amber-600 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase flex items-center gap-1"
-                >
-                  ⭐ TOP
-                </span>
+      <!-- Contenido por Tab -->
+      <div class="p-4">
+        <!-- Tab: Recursos (con curso) -->
+        <div v-if="activeTab === 'recursos'">
+          <div v-if="loading" class="text-center py-8 text-gray-500">Cargando...</div>
+          <div v-else-if="recursosFiltrados.length === 0" class="text-center py-8 text-gray-500">
+            No se encontraron recursos
+          </div>
+          <div v-else class="space-y-4">
+            <div
+              v-for="item in recursosFiltrados"
+              :key="item.id_recurso"
+              class="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition"
+            >
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-800">{{ item.titulo }}</span>
+                    <span v-if="item.es_destacado" class="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded"><Star class="text-xs" /> Destacado</span>
+                    <span v-if="item.curso" class="flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded"><Book class="text-xs" /> {{ item.curso.nombre_curso }}</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mt-1">{{ item.descripcion }}</p>
+                  <p class="text-xs text-gray-400 mt-1">Por: {{ item.usuario?.nombre_completo || item.usuario?.nombre }}</p>
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    <span v-for="h in item.herramientas" :key="h.id_herramienta || h" class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">
+                      {{ typeof h === 'string' ? h : h.nombre }}
+                    </span>
+                  </div>
+                </div>
+                <a v-if="item.url_archivo" :href="getRecursoUrl(item.url_archivo)" target="_blank" class="text-indigo-600 text-sm">Descargar</a>
               </div>
             </div>
+          </div>
+        </div>
 
-            <h3 class="text-gray-900 font-semibold mt-1">{{ item.titulo }}</h3>
-            <p class="text-gray-600 text-sm mt-1 line-clamp-2">
-              {{ item.descripcion }}
-            </p>
-
-            <!-- Herramientas & Tags -->
-            <div class="flex flex-wrap gap-2 mt-3">
-              <span
-                v-for="h in item.herramientas"
-                :key="h"
-                class="text-indigo-600 text-sm hover:underline font-medium"
-              >
-                #{{ h }}
-              </span>
-              <span
-                v-for="tag in item.etiquetas"
-                :key="tag"
-                class="text-gray-400 text-sm"
-              >
-                #{{ tag }}
-              </span>
+        <!-- Tab: Hallazgos (recursos sin curso) -->
+        <div v-if="activeTab === 'hallazgos'">
+          <div v-if="loading" class="text-center py-8 text-gray-500">Cargando...</div>
+          <div v-else-if="hallazgosFiltrados.length === 0" class="text-center py-8 text-gray-500">
+            No se encontraron hallazgos
+          </div>
+          <div v-else class="space-y-4">
+            <div
+              v-for="item in hallazgosFiltrados"
+              :key="item.id_recurso"
+              class="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition"
+            >
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-800">{{ item.titulo }}</span>
+                    <span class="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded"><Brain class="text-xs" /> Hallazgo</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mt-1">{{ item.descripcion }}</p>
+                  <p class="text-xs text-gray-400 mt-1">Por: {{ item.usuario?.nombre_completo || item.usuario?.nombre }}</p>
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    <span v-for="tag in item.etiquetas" :key="tag.id_etiqueta || tag" class="text-xs text-indigo-500">
+                      #{{ typeof tag === 'string' ? tag : tag.nombre }}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Botones de Acción (Estilo Twitter) -->
-            <div class="flex justify-between mt-4 text-gray-500 max-w-xs">
-              <button class="hover:text-blue-500 flex items-center gap-2 group">
-                <div
-                  class="p-2 group-hover:bg-blue-50 rounded-full transition-colors"
-                >
-                  📂
-                </div>
-                <span class="text-xs">Ver</span>
-              </button>
-              <button
-                class="hover:text-green-500 flex items-center gap-2 group"
-              >
-                <div
-                  class="p-2 group-hover:bg-green-50 rounded-full transition-colors"
-                >
-                  🔗
-                </div>
-                <span class="text-xs">Clonar</span>
-              </button>
-              <button class="hover:text-red-500 flex items-center gap-2 group">
-                <div
-                  class="p-2 group-hover:bg-red-50 rounded-full transition-colors"
-                >
-                  🔖
-                </div>
-                <span class="text-xs">Guardar</span>
-              </button>
+        <!-- Tab: Posts -->
+        <div v-if="activeTab === 'posts'">
+          <div v-if="loadingPosts" class="text-center py-8 text-gray-500">Cargando...</div>
+          <div v-else-if="postsFiltrados.length === 0" class="text-center py-8 text-gray-500">
+            No se encontraron posts
+          </div>
+          <div v-else class="space-y-4">
+            <div
+              v-for="post in postsFiltrados"
+              :key="post.id_post"
+              class="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition"
+            >
+              <div class="flex items-center gap-2 mb-2">
+                <span class="font-bold text-gray-800">{{ post.autor?.nombre_completo || post.autor?.nombre }}</span>
+                <span class="text-xs text-gray-400">{{ formatFecha(post.fecha_creacion) }}</span>
+              </div>
+              <p class="text-gray-700">{{ post.contenido }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Articulos -->
+        <div v-if="activeTab === 'articulos'">
+          <div v-if="loadingArticulos" class="text-center py-8 text-gray-500">Cargando...</div>
+          <div v-else-if="articulosFiltrados.length === 0" class="text-center py-8 text-gray-500">
+            No se encontraron artículos
+          </div>
+          <div v-else class="space-y-4">
+            <div
+              v-for="articulo in articulosFiltrados"
+              :key="articulo.id_articulo"
+              @click="verArticulo(articulo.id_articulo)"
+              class="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition cursor-pointer"
+            >
+              <div class="flex items-center gap-2 mb-2">
+                <span class="font-bold text-gray-800">{{ articulo.titulo }}</span>
+                <span v-if="articulo.esta_publicado" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">Publicado</span>
+              </div>
+              <p class="text-sm text-gray-600">{{ articulo.resumen }}</p>
+              <p class="text-xs text-gray-400 mt-1">Por: {{ articulo.autor?.nombre_completo || articulo.autor?.nombre }}</p>
             </div>
           </div>
         </div>
@@ -145,87 +146,125 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { Brain, Book, Star } from "@boxicons/vue";
+import { recursosService } from "../services/recursos.services";
+import api from "../services/api";
 
-interface Resultado {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  usuario: { nombre: string };
-  herramientas: string[];
-  etiquetas: string[];
-  es_destacado: boolean;
-  id_curso: number | null;
-  fecha: string;
-}
+const router = useRouter();
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
+// Data
+const recursos = ref<any[]>([]);
+const posts = ref<any[]>([]);
+const articulos = ref<any[]>([]);
+
+const loading = ref(true);
+const loadingPosts = ref(true);
+const loadingArticulos = ref(true);
+
+// Filtros
 const searchQuery = ref("");
-const filtroActivo = ref("todo");
+const activeTab = ref("recursos");
 
-const filtros = [
-  { id: "todo", label: "Todo" },
-  { id: "destacados", label: "⭐ Destacados" },
-  { id: "tareas", label: "Tareas" },
+const tabs = [
+  { id: "recursos", label: "Recursos" },
   { id: "hallazgos", label: "Hallazgos" },
-  { id: "herramientas", label: "Por Stack" },
+  { id: "posts", label: "Posts" },
+  { id: "articulos", label: "Artículos" },
 ];
 
-const mockData = ref<Resultado[]>([
-  {
-    id: 1,
-    titulo: "Cálculo de Vigas Simples con Python",
-    descripcion:
-      "Un script que automatiza el cálculo de momentos flectores y esfuerzos cortantes basado en el libro de Hibbeler.",
-    usuario: { nombre: "Marcos Sosa" },
-    herramientas: ["python", "numpy"],
-    etiquetas: ["estructuras", "automatización"],
-    es_destacado: true,
-    id_curso: 101,
-    fecha: "2023-10-25",
-  },
-  {
-    id: 2,
-    titulo: "Hallazgo: Atajo para Renderizado Lumion",
-    descripcion:
-      "Descubrí un plugin que reduce el tiempo de renderizado a la mitad usando presets de iluminación global.",
-    usuario: { nombre: "Carla Benítez" },
-    herramientas: ["lumion", "sketchup"],
-    etiquetas: ["renderizado", "arquitectura"],
-    es_destacado: false,
-    id_curso: null,
-    fecha: "2023-10-24",
-  },
-]);
-
-const resultadosFiltrados = computed(() => {
-  return mockData.value.filter((item) => {
-    const matchesSearch =
-      item.titulo.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      item.herramientas.some((h) =>
-        h.includes(searchQuery.value.toLowerCase()),
-      );
-
-    if (filtroActivo.value === "destacados")
-      return matchesSearch && item.es_destacado;
-    if (filtroActivo.value === "tareas")
-      return matchesSearch && item.id_curso !== null;
-    if (filtroActivo.value === "hallazgos")
-      return matchesSearch && item.id_curso === null;
-
-    return matchesSearch;
+// Computed
+const recursosFiltrados = computed(() => {
+  return recursos.value.filter(r => {
+    if (!r.es_destacado) return false;
+    return matchesSearch(r.titulo, r.descripcion, r.herramientas, r.etiquetas);
   });
 });
 
-const formatFecha = (f: string) =>
-  new Date(f).toLocaleDateString("es-ES", { month: "short", day: "numeric" });
+const hallazgosFiltrados = computed(() => {
+  return recursos.value.filter(r => {
+    if (r.curso) return false;
+    return matchesSearch(r.titulo, r.descripcion, r.herramientas, r.etiquetas);
+  });
+});
+
+const postsFiltrados = computed(() => {
+  return posts.value.filter(p => {
+    return matchesSearch(p.contenido, p.contenido, [], []);
+  });
+});
+
+const articulosFiltrados = computed(() => {
+  return articulos.value.filter(a => {
+    return matchesSearch(a.titulo, a.resumen, [], []);
+  });
+});
+
+// Helpers
+const matchesSearch = (titulo: string, desc: string, herramientas: any[], etiquetas: any[]) => {
+  if (!searchQuery.value) return true;
+  const search = searchQuery.value.toLowerCase();
+  return titulo?.toLowerCase().includes(search) || 
+         desc?.toLowerCase().includes(search) ||
+         herramientas?.some((h: any) => (typeof h === 'string' ? h : h.nombre)?.toLowerCase().includes(search)) ||
+         etiquetas?.some((e: any) => (typeof e === 'string' ? e : e.nombre)?.toLowerCase().includes(search));
+};
+
+const getCount = (tabId: string) => {
+  if (tabId === "recursos") return recursosFiltrados.value.length;
+  if (tabId === "hallazgos") return hallazgosFiltrados.value.length;
+  if (tabId === "posts") return postsFiltrados.value.length;
+  if (tabId === "articulos") return articulosFiltrados.value.length;
+  return 0;
+};
+
+const getRecursoUrl = (nombreArchivo: string) => {
+  return `${apiUrl.replace("/api/v1", "")}/uploads/recursos/${nombreArchivo}`;
+};
+
+const verArticulo = (id: number) => {
+  router.push(`/articulos/${id}`);
+};
+
+const formatFecha = (f: string | undefined) => {
+  if (!f) return '';
+  try {
+    return new Date(f).toLocaleDateString("es-ES", { month: "short", day: "numeric" });
+  } catch {
+    return '';
+  }
+};
+
+// Carga de datos
+const loadData = async () => {
+  try {
+    loading.value = true;
+    loadingPosts.value = true;
+    loadingArticulos.value = true;
+
+    const [recursosRes, postsRes, articulosRes] = await Promise.all([
+      recursosService.getAll(),
+      api.get("/posts"),
+      api.get("/articulos"),
+    ]);
+
+    recursos.value = recursosRes;
+    posts.value = postsRes.data;
+    articulos.value = articulosRes.data;
+  } catch (error) {
+    console.error("Error al cargar datos:", error);
+  } finally {
+    loading.value = false;
+    loadingPosts.value = false;
+    loadingArticulos.value = false;
+  }
+};
+
+onMounted(() => {
+  loadData();
+});
 </script>
 
-<style scoped>
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-</style>
+<style scoped></style>

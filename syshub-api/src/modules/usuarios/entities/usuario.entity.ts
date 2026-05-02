@@ -2,16 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { JoinColumn } from 'typeorm';
 import { Rol } from '@app/modules/usuarios/entities/rol.entity';
 import { Carrera } from '@app/modules/carreras/entities/carrera.entity';
 import { Post } from '@app/modules/posts/entities/post.entity';
 import { PostsLike } from '@app/modules/posts/entities/posts-like.entity';
 import { Recurso } from '@app/modules/recursos/entities/recurso.entity';
+import { UsuarioCurso } from '@app/modules/usuarios/entities/usuario-curso.entity';
+import { Articulo } from '@app/modules/articulos/entities/articulo.entity';
+import { SolicitudArticulo } from '@app/modules/solicitudes-articulos/entities/solicitud-articulo.entity';
 
 @Entity('usuarios')
 export class Usuario {
@@ -54,12 +57,27 @@ export class Usuario {
   @JoinColumn({ name: 'id_carrera' })
   carrera?: Carrera;
 
+  @OneToMany(() => UsuarioCurso, (uc) => uc.usuario)
+  usuarios_cursos!: UsuarioCurso[];
+
   @OneToMany(() => Recurso, (recurso) => recurso.usuario)
   recursos!: Recurso[];
 
   @OneToMany(() => Post, (post) => post.autor)
   posts!: Post[];
 
+  @OneToMany(() => Articulo, (articulo) => articulo.autor)
+  articulos!: Articulo[];
+
   @OneToMany(() => PostsLike, (like) => like.usuario)
   likes!: PostsLike[];
+
+  @Column({ type: 'boolean', default: false })
+  esta_suspendido!: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  puede_crear_articulos!: boolean;
+
+  @OneToMany(() => SolicitudArticulo, (solicitud) => solicitud.usuario)
+  solicitudes_articulos!: SolicitudArticulo[];
 }

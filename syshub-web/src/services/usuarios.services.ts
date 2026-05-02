@@ -7,6 +7,8 @@ export interface Usuario {
   registro_academico: string;
   username: string;
   foto_perfil?: string;
+  esta_suspendido?: boolean;
+  puede_crear_articulos?: boolean;
   rol: {
     id_rol: number;
     nombre_rol: string;
@@ -46,6 +48,7 @@ export const usuariosService = {
   },
 
   async create(data: CreateUsuarioDto): Promise<Usuario> {
+    console.log(data)
     const response = await api.post<Usuario>("/usuarios", data);
     return response.data;
   },
@@ -57,6 +60,55 @@ export const usuariosService = {
 
   async delete(id: number): Promise<{ message: string }> {
     const response = await api.delete(`/usuarios/${id}`);
+    return response.data;
+  },
+
+  async suspender(id: number): Promise<Usuario> {
+    const response = await api.patch<Usuario>(`/usuarios/${id}/suspender`);
+    return response.data;
+  },
+
+  async activar(id: number): Promise<Usuario> {
+    const response = await api.patch<Usuario>(`/usuarios/${id}/activar`);
+    return response.data;
+  },
+
+  async solicitarPermisoArticulos(): Promise<any> {
+    const response = await api.post("/solicitudes-articulos");
+    return response.data;
+  },
+
+  async getMiSolicitud(): Promise<any> {
+    const response = await api.get("/solicitudes-articulos/mi-solicitud");
+    return response.data;
+  },
+};
+
+export interface SolicitudArticulo {
+  id_solicitud: number;
+  usuario: {
+    id_usuario: number;
+    nombre_completo: string;
+    email: string;
+    registro_academico: string;
+  };
+  estado: 'pendiente' | 'aprobada' | 'rechazada';
+  fecha_solicitud: string;
+}
+
+export const solicitudesArticulosService = {
+  async getPendientes(): Promise<SolicitudArticulo[]> {
+    const response = await api.get<SolicitudArticulo[]>("/solicitudes-articulos/pendientes");
+    return response.data;
+  },
+
+  async aprobar(id: number): Promise<any> {
+    const response = await api.patch(`/solicitudes-articulos/${id}/aprobar`);
+    return response.data;
+  },
+
+  async rechazar(id: number): Promise<any> {
+    const response = await api.patch(`/solicitudes-articulos/${id}/rechazar`);
     return response.data;
   },
 };

@@ -3,12 +3,15 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Repository } from 'typeorm';
+import { PostsLike } from './entities/posts-like.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    @InjectRepository(PostsLike)
+    private readonly postsLikeRepository: Repository<PostsLike>,
   ) {}
 
   async create(createPostDto: CreatePostDto, userId: number) {
@@ -76,5 +79,45 @@ export class PostsService {
 
   remove(id: number) {
     return `This action removes a #${id} post`;
+  }
+
+  async findMyPosts(userId: number) {
+    return this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.autor', 'autor')
+      .leftJoinAndSelect('autor.carrera', 'carrera')
+      .leftJoinAndSelect('post.imagenes', 'imagenes')
+      .leftJoinAndSelect('post.comentarios', 'comentarios')
+      .leftJoinAndSelect('comentarios.autor', 'comentarioAutor')
+      .where('post.autor.id_usuario = :userId', { userId })
+      .andWhere('post.post_respuesta_id IS NULL')
+      .orderBy('post.fecha_publicacion', 'DESC')
+      .getMany();
+  }
+
+  async findMyLikes(userId: number) {
+    const likes = await this.postsLikeRepository.find({
+      where: { id_usuario: userId },
+      relations: ['post', 'post.autor', 'post.autor.carrera', 'post.imagenes'],
+      order: { id_usuario: 'DESC' },
+    });
+    return likes.map((like) => ({
+      ...like.post,
+      reaction: like.tipo,
+    }));
+  }
+
+  async findMyComments(userId: number) {
+    return this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.autor', 'autor')
+      .leftJoinAndSelect('autor.carrera', 'carrera')
+      .leftJoinAndSelect('post.imagenes', 'imagenes')
+      .leftJoinAndSelect('post.postRespuesta', 'postPrincipal')
+      .leftJoinAndSelect('postPrincipal.autor', 'postPrincipalAutor')
+      .where('post.autor.id_usuario = :userId', { userId })
+      .andWhere('post.post_respuesta_id IS NOT NULL')
+      .orderBy('post.fecha_publicacion', 'DESC')
+      .getMany();
   }
 }

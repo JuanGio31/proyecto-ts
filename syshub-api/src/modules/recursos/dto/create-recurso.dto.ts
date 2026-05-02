@@ -23,18 +23,17 @@ export class CreateRecursoDto {
   @IsOptional()
   url_archivo?: string;
 
-  @IsInt()
   @IsOptional()
-  id_curso?: number;
+  id_curso: number;
 
   @IsArray()
   @IsString({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   etiquetas!: string[];
 
   @IsArray()
   @IsString({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   herramientas!: string[];
 
   @IsString()

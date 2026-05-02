@@ -33,10 +33,10 @@
       >
         <div>
           <h2 class="text-2xl font-bold text-gray-900">
-            {{ authStore.user?.nombre_completo }}
+            {{ authStore.user?.nombre_completo || '-' }}
           </h2>
           <p class="text-sm text-indigo-600 font-medium">
-            {{ authStore.user?.rol.nombre_rol }}
+            {{ authStore.user?.rol?.nombre_rol || '-' }}
           </p>
         </div>
       </div>
@@ -49,7 +49,7 @@
           <div>
             <p class="text-xs text-gray-500 font-medium">Registro Académico</p>
             <p class="text-sm text-gray-900 font-semibold">
-              {{ authStore.user?.registro_academico }}
+              {{ authStore.user?.registro_academico || '-' }}
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@
           <div class="flex-1">
             <p class="text-xs text-gray-500 font-medium">Correo electrónico</p>
             <p class="text-sm text-gray-900 font-semibold">
-              {{ authStore.user?.email }}
+              {{ authStore.user?.email || '-' }}
             </p>
           </div>
         </div>

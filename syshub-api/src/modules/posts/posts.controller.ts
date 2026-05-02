@@ -17,6 +17,39 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMyPosts(@GetUser('userId') userId: number) {
+    return this.postsService.findMyPosts(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/likes')
+  getMyLikes(@GetUser('userId') userId: number) {
+    return this.postsService.findMyLikes(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/comentarios')
+  getMyComments(@GetUser('userId') userId: number) {
+    return this.postsService.findMyComments(userId);
+  }
+
+  @Get()
+  findAll() {
+    return this.postsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(+id);
+  }
+
+  @Get(':id/comentarios')
+  getComentarios(@Param('id') postId: number) {
+    return this.postsService.getComentarios(postId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(
     @GetUser('userId') userId: number,
@@ -36,21 +69,6 @@ export class PostsController {
       { ...createPostDto, post_respuesta_id: postId },
       userId,
     );
-  }
-
-  @Get(':id/comentarios')
-  getComentarios(@Param('id') postId: number) {
-    return this.postsService.getComentarios(postId);
-  }
-
-  @Get()
-  findAll() {
-    return this.postsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
   }
 
   @Delete(':id')

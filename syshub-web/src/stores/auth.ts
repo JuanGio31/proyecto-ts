@@ -11,6 +11,7 @@ export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(localStorage.getItem("access_token"));
   const user = ref<any>(null);
   const loading = ref(false);
+  const isLoadingUser = ref(true);
 
   const isAuthenticated = computed(() => !!token.value);
 
@@ -60,6 +61,7 @@ export const useAuthStore = defineStore("auth", () => {
       }
     } finally {
       loading.value = false;
+      isLoadingUser.value = false;
     }
   }
 
@@ -67,6 +69,7 @@ export const useAuthStore = defineStore("auth", () => {
     authService.logout();
     token.value = null;
     user.value = null;
+    isLoadingUser.value = true;
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_data");
   }
@@ -88,6 +91,7 @@ export const useAuthStore = defineStore("auth", () => {
     token,
     user,
     loading,
+    isLoadingUser,
     isAuthenticated,
     login,
     signup,

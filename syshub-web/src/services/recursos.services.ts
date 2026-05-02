@@ -28,7 +28,7 @@ export const recursosService = {
   },
 
   async getCursos(): Promise<Curso[]> {
-    const response = await api.get<Curso[]>("/cursos");
+    const response = await api.get<Curso[]>("/usuarios/me/cursos");
     return response.data;
   },
 
@@ -37,8 +37,31 @@ export const recursosService = {
     return response.data;
   },
 
-  async getAll(): Promise<any[]> {
-    const response = await api.get("/recursos");
+  async getAll(filtros?: {
+    busqueda?: string;
+    etiqueta?: string;
+    herramienta?: string;
+    es_destacado?: boolean;
+  }): Promise<any[]> {
+    const params = new URLSearchParams();
+    if (filtros?.busqueda) params.append("busqueda", filtros.busqueda);
+    if (filtros?.etiqueta) params.append("etiqueta", filtros.etiqueta);
+    if (filtros?.herramienta) params.append("herramienta", filtros.herramienta);
+    if (filtros?.es_destacado !== undefined) params.append("es_destacado", String(filtros.es_destacado));
+    
+    const queryString = params.toString();
+    const url = queryString ? `/recursos?${queryString}` : "/recursos";
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  async toggleDestacado(id: number): Promise<any> {
+    const response = await api.patch(`/recursos/${id}/destacado`);
+    return response.data;
+  },
+
+  async getMyRecursos(): Promise<any[]> {
+    const response = await api.get("/recursos/me");
     return response.data;
   },
 };

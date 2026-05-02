@@ -104,7 +104,14 @@ async function handleSumbit() {
       password: password.value,
     });
     if (success) {
-      router.push("/");
+      const rol = authStore.user?.rol?.nombre_rol;
+      if (rol === 'administrador') {
+        router.push("/dashboard-admin");
+      } else if (rol === 'auxiliar') {
+        router.push("/dashboard-auxiliar");
+      } else {
+        router.push("/");
+      }
     } else {
       error.value = "Credenciales incorrectas";
     }

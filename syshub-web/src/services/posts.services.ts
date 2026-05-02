@@ -108,4 +108,19 @@ export const postsService = {
     const response = await api.delete(`/posts/${postId}/reactions`);
     return response.data;
   },
+
+  async getMyPosts(): Promise<Post[]> {
+    const response = await api.get("/posts/me");
+    return response.data;
+  },
+
+  async getMyLikes(): Promise<Post[]> {
+    const response = await api.get("/posts/me/likes");
+    return response.data;
+  },
+
+  async getMyComments(): Promise<Post[]> {
+    const response = await api.get("/posts/me/comentarios");
+    return response.data;
+  },
 };

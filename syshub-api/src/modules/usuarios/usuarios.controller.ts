@@ -15,6 +15,7 @@ import { UsuariosService } from './usuarios.service';
 import { JwtAuthGuard } from '@app/common/guards/jwt-auth.guard';
 import { GetUser } from '@app/common/decorators/get-user.decorator';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { UpdatePerfilDto } from './dto/update-perfil.dto';
 import { CreateUsuarioAdminDto } from './dto/create-usuario-admin.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '@app/common/utils/multer.config';
@@ -68,9 +69,21 @@ export class UsuariosController {
   @UseGuards(JwtAuthGuard)
   async updatePerfil(
     @GetUser('userId') userId: number,
-    @Body() updateUsuarioDto: UpdateUsuarioDto,
+    @Body() updatePerfilDto: UpdatePerfilDto,
   ) {
-    return this.usuariosService.updatePerfil(userId, updateUsuarioDto);
+    return this.usuariosService.updatePerfil(userId, updatePerfilDto);
+  }
+
+  @Get('me/cursos')
+  @UseGuards(JwtAuthGuard)
+  async getMyCursos(@GetUser('userId') userId: number) {
+    return this.usuariosService.getCursos(userId);
+  }
+
+  @Get('me/estudiantes')
+  @UseGuards(JwtAuthGuard)
+  async getMisEstudiantes(@GetUser('userId') userId: number) {
+    return this.usuariosService.getEstudiantesDeMisCursos(userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -86,5 +99,46 @@ export class UsuariosController {
     return this.usuariosService.updatePerfil(userId, {
       foto_perfil: file.filename,
     });
+  }
+
+  @Patch(':id/suspender')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ValueRol.ADMIN)
+  async suspender(@Param('id') id: string) {
+    return this.usuariosService.suspender(+id);
+  }
+
+  @Patch(':id/activar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ValueRol.ADMIN)
+  async activar(@Param('id') id: string) {
+    return this.usuariosService.activar(+id);
+  }
+
+  @Post('cursos/:idCurso/estudiantes/:idEstudiante')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ValueRol.ADMIN)
+  async inscribirEstudiante(
+    @Param('idEstudiante') idEstudiante: string,
+    @Param('idCurso') idCurso: string,
+  ) {
+    return this.usuariosService.inscribirEstudiante(+idEstudiante, +idCurso);
+  }
+
+  @Delete('cursos/:idCurso/estudiantes/:idEstudiante')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ValueRol.ADMIN)
+  async desinscribirEstudiante(
+    @Param('idEstudiante') idEstudiante: string,
+    @Param('idCurso') idCurso: string,
+  ) {
+    return this.usuariosService.desinscribirEstudiante(+idEstudiante, +idCurso);
+  }
+
+  @Get('cursos/:idCurso/estudiantes')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ValueRol.ADMIN)
+  async getEstudiantesInscritos(@Param('idCurso') idCurso: string) {
+    return this.usuariosService.getEstudiantesInscritos(+idCurso);
   }
 }

@@ -8,5 +8,6 @@ import { PostsLike } from '@app/modules/posts/entities/posts-like.entity';
   imports: [TypeOrmModule.forFeature([PostsLike])],
   controllers: [PostsLikesController],
   providers: [PostsLikesService],
+  exports: [PostsLikesService],
 })
 export class PostsLikesModule {}

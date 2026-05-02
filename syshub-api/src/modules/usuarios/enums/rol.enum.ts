@@ -1,5 +1,5 @@
 export enum ValueRol {
   ADMIN = 'administrador',
-  PROFESOR = 'auxiliar',
+  AUXILIAR = 'auxiliar',
   ESTUDIANTE = 'estudiante',
 }

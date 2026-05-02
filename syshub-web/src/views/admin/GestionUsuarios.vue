@@ -4,6 +4,7 @@
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
         <button
+          v-if="isAdmin"
           @click="abrirModalCrear"
           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
         >
@@ -23,28 +24,63 @@
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Usuario</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Registro</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Rol</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+              >
+                Usuario
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+              >
+                Email
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+              >
+                Registro
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+              >
+                Rol
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+              >
+                Estado
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+              >
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
-            <tr v-for="usuario in usuarios" :key="usuario.id_usuario" class="hover:bg-gray-50">
+            <tr
+              v-for="usuario in usuarios"
+              :key="usuario.id_usuario"
+              class="hover:bg-gray-50"
+            >
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600"
+                  >
                     {{ usuario.nombre_completo?.charAt(0).toUpperCase() }}
                   </div>
                   <div>
-                    <p class="font-medium text-gray-800">{{ usuario.nombre_completo }}</p>
+                    <p class="font-medium text-gray-800">
+                      {{ usuario.nombre_completo }}
+                    </p>
                     <p class="text-xs text-gray-500">@{{ usuario.username }}</p>
                   </div>
                 </div>
               </td>
               <td class="px-4 py-3 text-gray-600">{{ usuario.email }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ usuario.registro_academico }}</td>
+              <td class="px-4 py-3 text-gray-600">
+                {{ usuario.registro_academico }}
+              </td>
               <td class="px-4 py-3">
                 <span
                   class="px-2 py-1 text-xs rounded-full font-medium"
@@ -54,7 +90,21 @@
                 </span>
               </td>
               <td class="px-4 py-3">
-                <div class="flex gap-2">
+                <span
+                  v-if="usuario.esta_suspendido"
+                  class="px-2 py-1 text-xs rounded-full font-medium bg-red-100 text-red-700"
+                >
+                  Suspendido
+                </span>
+                <span
+                  v-else
+                  class="px-2 py-1 text-xs rounded-full font-medium bg-green-100 text-green-700"
+                >
+                  Activo
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div v-if="isAdmin" class="flex gap-2">
                   <button
                     @click="abrirModalEditar(usuario)"
                     class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
@@ -62,12 +112,21 @@
                     Editar
                   </button>
                   <button
-                    @click="eliminarUsuario(usuario.id_usuario)"
-                    class="text-red-600 hover:text-red-800 text-sm font-medium"
+                    v-if="!usuario.esta_suspendido"
+                    @click="suspenderUsuario(usuario)"
+                    class="text-orange-600 hover:text-orange-800 text-sm font-medium"
                   >
-                    Eliminar
+                    Suspender
+                  </button>
+                  <button
+                    v-else
+                    @click="activarUsuario(usuario)"
+                    class="text-green-600 hover:text-green-800 text-sm font-medium"
+                  >
+                    Activar
                   </button>
                 </div>
+                <span v-else class="text-gray-400 text-xs">Sin permisos</span>
               </td>
             </tr>
           </tbody>
@@ -75,15 +134,21 @@
       </div>
     </div>
 
-    <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showModal = false">
+    <div
+      v-if="showModal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      @click.self="showModal = false"
+    >
       <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
         <h2 class="text-xl font-bold text-gray-800 mb-4">
-          {{ modoEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}
+          {{ modoEdicion ? "Editar Usuario" : "Nuevo Usuario" }}
         </h2>
 
         <form @submit.prevent="guardarUsuario" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Nombre Completo</label>
+            <label class="block text-sm font-medium text-gray-600 mb-1"
+              >Nombre Completo</label
+            >
             <input
               v-model="form.nombre_completo"
               type="text"
@@ -93,7 +158,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
+            <label class="block text-sm font-medium text-gray-600 mb-1"
+              >Email</label
+            >
             <input
               v-model="form.email"
               type="email"
@@ -106,7 +173,11 @@
           <div v-if="!modoEdicion">
             <label class="block text-sm font-medium text-gray-600 mb-1">
               Registro Académico
-              <span v-if="!requiereRegistroAcademico" class="text-gray-400 text-xs">(opcional para admin/auxiliar)</span>
+              <span
+                v-if="!requiereRegistroAcademico"
+                class="text-gray-400 text-xs"
+                >(opcional para admin/auxiliar)</span
+              >
             </label>
             <input
               v-model="form.registro_academico"
@@ -117,7 +188,9 @@
           </div>
 
           <div v-if="!modoEdicion">
-            <label class="block text-sm font-medium text-gray-600 mb-1">Contraseña</label>
+            <label class="block text-sm font-medium text-gray-600 mb-1"
+              >Contraseña</label
+            >
             <input
               v-model="form.password"
               type="password"
@@ -138,14 +211,20 @@
             />
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Rol</label>
+          <div v-if="isAdmin">
+            <label class="block text-sm font-medium text-gray-600 mb-1"
+              >Rol</label
+            >
             <select
               v-model="form.id_rol"
               required
               class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
             >
-              <option v-for="rol in roles" :key="rol.id_rol" :value="rol.id_rol">
+              <option
+                v-for="rol in roles"
+                :key="rol.id_rol"
+                :value="rol.id_rol"
+              >
                 {{ rol.nombre_rol }}
               </option>
             </select>
@@ -164,7 +243,7 @@
               :disabled="saving"
               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
             >
-              {{ saving ? 'Guardando...' : 'Guardar' }}
+              {{ saving ? "Guardando..." : "Guardar" }}
             </button>
           </div>
         </form>
@@ -175,7 +254,18 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
-import { usuariosService, rolesService, type Usuario, type Rol } from "../services/usuarios.services";
+import {
+  usuariosService,
+  rolesService,
+  type Usuario,
+  type Rol,
+} from "../../services/usuarios.services";
+import { useAuthStore } from "../../stores/auth";
+
+const authStore = useAuthStore();
+const isAdmin = computed(
+  () => authStore.user?.rol?.nombre_rol === "administrador",
+);
 
 const usuarios = ref<Usuario[]>([]);
 const roles = ref<Rol[]>([]);
@@ -195,7 +285,7 @@ const form = reactive({
 });
 
 const rolSeleccionado = computed(() => {
-  const rol = roles.value.find(r => r.id_rol === form.id_rol);
+  const rol = roles.value.find((r) => r.id_rol === form.id_rol);
   return rol?.nombre_rol?.toLowerCase() || "";
 });
 
@@ -286,15 +376,25 @@ const guardarUsuario = async () => {
   }
 };
 
-const eliminarUsuario = async (id: number) => {
-  if (!confirm("¿Estás seguro de eliminar este usuario?")) return;
+const suspenderUsuario = async (usuario: Usuario) => {
+  if (!confirm(`¿Estás seguro de suspender a ${usuario.nombre_completo}?`)) return;
 
   try {
-    await usuariosService.delete(id);
+    await usuariosService.suspender(usuario.id_usuario);
     await loadData();
   } catch (err) {
-    console.error("Error al eliminar:", err);
-    alert("Error al eliminar usuario");
+    console.error("Error al suspender:", err);
+    alert("Error al suspender usuario");
+  }
+};
+
+const activarUsuario = async (usuario: Usuario) => {
+  try {
+    await usuariosService.activar(usuario.id_usuario);
+    await loadData();
+  } catch (err) {
+    console.error("Error al activar:", err);
+    alert("Error al activar usuario");
   }
 };
 

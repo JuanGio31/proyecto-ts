@@ -24,7 +24,7 @@ async function bootstrap() {
   });
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  logger.log('-> Api corriendo en http://localhost:${port}');
+  logger.log(`-> Api corriendo en http://localhost:${port}`);
   logger.log('-> CORS habilitado para http://localhost:5173');
 }
 bootstrap();

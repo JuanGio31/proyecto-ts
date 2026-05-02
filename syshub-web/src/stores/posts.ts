@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import {
   postsService,
   type Post,
-  type PostReactions,
   type ReactionType,
 } from "../services/posts.services";
 

@@ -9,6 +9,9 @@ import { RecursosModule } from '@app/modules/recursos/recursos.module';
 import { EtiquetasModule } from '@app/modules/etiquetas/etiquetas.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ArticulosModule } from '@app/modules/articulos/articulos.module';
+import { SolicitudesArticulosModule } from '@app/modules/solicitudes-articulos/solicitudes-articulos.module';
+import { SeedModule } from '@app/modules/seed/seed.module';
 
 @Module({
   imports: [
@@ -28,7 +31,8 @@ import { join } from 'path';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: configService.get('NODE_ENV') !== 'prod',
+        // synchronize: configService.get('NODE_ENV') !== 'prod',
+        synchronize: true,
         logging: configService.get('NODE_ENV') !== 'prod',
       }),
     }),
@@ -42,6 +46,9 @@ import { join } from 'path';
       serveRoot: '/uploads', // La ruta en el navegador será /uploads/perfiles/foto.jpg
     }),
     EtiquetasModule,
+    ArticulosModule,
+    SolicitudesArticulosModule,
+    SeedModule,
   ],
 })
 export class AppModule {}

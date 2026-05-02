@@ -16,4 +16,8 @@ export class UpdateUsuarioDto {
   @IsString()
   @IsOptional()
   foto_perfil?: string;
+
+  @IsString()
+  @IsOptional()
+  fecha_nacimiento?: string;
 }
